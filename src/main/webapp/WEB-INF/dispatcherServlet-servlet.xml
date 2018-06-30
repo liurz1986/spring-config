@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+	    http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--spring进行扫描，包下的所有类只要标注了注解都进行映射  -->
+     <context:component-scan base-package="com.liurz.controller"/>
+     <!-- 启动注解，注册服务，如验证框架、全局类型转换器 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<!-- 当在web.xml 中 DispatcherServlet使用 <url-pattern>/</url-pattern> 映射时，能映射静态资源 -->
+	  <mvc:default-servlet-handler />
+	<!-- 视图解析、 对转向页面的路径解析。prefix：前缀， suffix：后缀-->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	         <property name="prefix" value="/WEB-INF/jsp/"></property>
+	         <property name="suffix" value=".jsp"></property>
+	</bean>
+	<!-- 文件上传配置 ,其中resolveLazily是为了推迟文件解析，以便捕获文件解析异常，里面property中name是固定的-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <!--设置上传文件最大尺寸  -->
+      <property name="maxUploadSize" value="20000000"/>
+      <!--设置默认编码utf-8  -->
+      <property name="defaultEncoding" value="UTF-8"/>
+      <property name="resolveLazily" value="true"/>
+    </bean>
+    
+     
+    <!-- 注册拦截器 -->
+    <!--  使用bean定义一个Interceptor，直接定义在mvc:interceptors根下面的Interceptor将拦截所有的请求   -->
+    <mvc:interceptors>
+        <!--拦截设置请求  -->
+        <mvc:interceptor>
+             <!-- 进行拦截：/**表示拦截所有controller -->
+            <mvc:mapping path="/**" />
+             <!-- 不进行拦截-->
+            <mvc:exclude-mapping path="/"/> <!--打开login.jsp页面  --> 
+            <mvc:exclude-mapping path="/login"/><!--打开login.jsp页面  -->
+            <mvc:exclude-mapping path="/UserController/login"/>  <!--登录页面登录  -->  
+            <!-- 拦截器 -->
+            <bean class="com.liurz.filter.LoginUserInterceptor"/>    
+        </mvc:interceptor>
+        
+    </mvc:interceptors>
+	<!-- 静态资源[ **表示改文件夹下面的所有文件夹] -->
+	<mvc:resources mapping="/fonts/**" location="/WEB-INF/fonts/" />
+	<mvc:resources mapping="/iconfont/**" location="/WEB-INF/iconfont/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" />
+	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" />	
+</beans>
